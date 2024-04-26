@@ -6,4 +6,4 @@
 
 Contibuted by 
 1. [Abhi Sharma](https://www.github.com/nerdyabhi)
-2. Add more 
+2. [Nikita Karmakar](https://github.com/NikitaKarmakarP)
