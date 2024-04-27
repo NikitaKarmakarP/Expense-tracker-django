@@ -14,6 +14,7 @@
             box-sizing: border-box;
             background-color: #f2f2f2;
         }
+
         #change_form {
             position: fixed;
             top: 50%;
@@ -101,94 +102,87 @@
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Welcome, {{u.name}}!</h1>
-        <form action="addTransaction" method="get">
-            <input type="hidden" name="email" value="{{u.email}}">
-            <input type="text" name="expense_name" placeholder="Enter expense description" required><br>
-            <input type="number" name="amount" placeholder="Enter amount"><br>
-            <input type="submit" value="Add Expense">
-        </form>
-    </div>
+<body><div class="container">
+    <h1>Welcome, {{u.name}}!</h1>
+    <form action="../addTransaction" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="email" value="{{u.email}}">
+        <input type="text" name="expense_name" placeholder="Enter expense description" required><br>
+        <input type="number" name="amount" placeholder="Enter amount"><br>
+        <input type="submit" value="Add Expense">
+    </form>
+</div>
 
 
-    <div class="show">
-        <h2>Your Expenses</h2>
-        <table border="1">
-            <tr>
-                <th>Last Modified</th>
-                <th>Description</th>
-                <th>Amount</th>
-                <th>Modify</th>
-            </tr>
-            {% for i in expense %}
-            <tr>
-                <td>{{ i.date }}</td>
-                <td>
-                        <input type="text" name="description" value="{{ i.expense_name }}" readonly>
-                </td>
-                <td>
-                        <input type="number" name="amountInput" value="{{ i.amount}}" readonly>
-                    </a>  
-                </td>
-                <td>
+<div class="show">
+    <h2>Your Expenses</h2>
+    <table border="1">
+        <tr>
+            <th>Last Modified</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Modify</th>
+        </tr>
+        {% for i in expense %}
+        <tr>
+            <td>{{ i.date }}</td>
+            <td>
+                <p id="description{{i.id}}">{{i.expense_name}}</p> 
+            </td>
+            <td>
+                <p  id="amountInput{{i.id}}">{{i.amount}}</p> 
+            </td>
+            <div id="change_form" style="display: none;">
+                <h1>Edit it</h1>
+                <form action="/../edit/{{i.id}}" method="get">
+                    <i id="closeBtn" class="fa-solid fa-square-xmark"></i>
+                    <input type="hidden" name="email" value="{{u.email}}">
+                    <input type="text" name="expense_name" placeholder="Enter expense description" required><br>
+                    <input type="number" name="amount" placeholder="Enter amount"><br>
+                    <input type="submit" value="Save changes">
+                </form>
+            </div>
+        </div>
+            <td>
+                <input type="text" name="id" value="{{i.id}}" hidden>
+                <button onclick="enableEdit({{i.id}})" class="edit_btn"><i class="fa-regular fa-edit"></i></button>
+                <a href="/../del/{{i.id}}">
+                    <button type="button" name="delete_btn" class="delete_btn"><i class="fa-regular fa-trash-can"></i></button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div class="total"><h3>Total Expense {{total}} </h3></div>
 
-                <!-- Tommorow get the id from a hidden text file and then do hidden stuffs with that id can't think today love you -->
-                        <input type="text" name="id" value="{{id}}"hidden>
-                        <button  id = "showForm" class = edit_btn><i class="fa-regular fa-edit"></i></button>
-                        <!-- <button type="submit">Save</button> -->
+  
 
-
-                    <a href="del/{{i.id}}">
-                        <button type="button" name="delete_btn" class="delete_btn" > <i class="fa-regular fa-trash-can"></i></button>
-                   </a>
-                   
-                   
-                </td>
-            </tr>
-
-
-            {% endfor %}
-        </table>
-        <div class="total">Total Expense: {{ total }}</div>
-    </div>
-
-    <div id="change_form">
-        <h1>Edit it</h1>
-        <form action="ChangeTransaction" method="get">
-            <i id = "closeBtn" class="fa-solid fa-square-xmark"></i>
-            <input type="hidden" name="email" value="{{u.email}}">
-            <input type="text" name="expense_name" placeholder="Enter expense description" required><br>
-            <input type="number" name="amount" placeholder="Enter amount"><br>
-            <input type="submit" value="Save Changes">
-        </form>
-    </div>
-
-    <button class="edit_btn" data-expense-id="{{ i.id }}"><i class="fa-regular fa-edit"></i></button>
-
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-       $(document).ready(function() {
-    // Show the change_form div when needed
-    $('.edit_btn').click(function() {
-        // Get the expense ID from the data attribute
-        var expenseId = $(this).data('expense-id');
+<script>
+function enableEdit(id) {
+    // Get the parent element of the button, which is the table row
+   
+    var changeForm = document.getElementById('change_form');
     
-        // Set the value of expense ID in the edit form
-        $('#change_form input[name="expense_id"]').val(expenseId);
+    // Set its display property to 'block'
+    changeForm.style.display = 'block';
+    
+    // Optionally, you can populate the input fields izn the form with data from the selected row
+    var description = document.getElementById('description' + id).textContent;
+    var amount = document.getElementById('amountInput' + id).textContent;
 
-        // Show the change_form div
-        $('#change_form').fadeIn();
-    });
+    // var description = getElementById('amountInput' + id).value
+    
+    changeForm.querySelector('input[name="expense_name"]').value = description;
+    changeForm.querySelector('input[name="amount"]').value = amount;
+}
 
-    // Close the change_form div when the close button is clicked
-    $('#change_form #closeBtn').click(function() {
-        $('#change_form').fadeOut();
-    });
-});
+function closeForm() {
+    var changeForm = document.getElementById('change_form');
+    changeForm.style.display = 'none';
+}
 
-    </script>
-</body>
-</html>
+
+// Add event listener to the close button
+document.getElementById('closeBtn').addEventListener('click', closeForm);
+
+</script>
